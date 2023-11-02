@@ -1,12 +1,14 @@
 #include "include/victor.h"
 
 void display(void) {
-    VictorEvent e = Victor_GetEvent();
+    Victor_Event e = Victor_GetEvent();
+    Victor_Rectangle r = newVictorRectangle(VEC2(0, 0), 90, 90, CYAN);
 
-    Victor_DrawRectangle(e.motion.x, e.motion.y, 50, 50, GHOSTWHITE);
+    Victor_DrawRectangle(Rect_Param(r));
+    Victor_DrawRectangle(e.motion.x - 25, e.motion.y - 25, 50, 50, GHOSTWHITE);
 }
 
-int main(void) {
+i32 main(void) {
     Victor_Init(420, 420, "Game!");
 
     Victor_GameLoop(display);

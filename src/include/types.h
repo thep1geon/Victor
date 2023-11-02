@@ -26,13 +26,4 @@ typedef int       bool;
 #define false     0
 #endif
 
-// Vector types
-
-#define Vec2Param(vec) vec.x, vec.y
-
-// 2D vector of floats
-typedef struct {
-    f32 x, y; 
-} Vec2;
-
 #endif //__TYPES_H

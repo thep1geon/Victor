@@ -1,8 +1,8 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
-#include "include/rect.h"
 #include "include/types.h"
+#include "include/victor_rect.h"
 #include "include/victor.h"
 #include "include/color.h"
 
@@ -60,7 +60,7 @@ void Victor_Init(i32 windowWidth, i32 windowHeight, const char* windowTitle) {
 }
 
 void Victor_GameLoop(void(*display)(void)) {
-    VictorEvent tempEvent = e;
+    Victor_Event tempEvent = e;
 
     if (window == NULL || renderer == NULL) {
         printf("Victor not initialized. You must initialize Victor before running the game loop\n");
@@ -106,13 +106,13 @@ void Victor_GameLoop(void(*display)(void)) {
 
 }
 
-VictorEvent Victor_GetEvent(void) { return e;}
+// Getters and setters
+Victor_Event Victor_GetEvent(void) { return e;}
 void Victor_SetBackgroundColor(Color c) { backgroundColor = c;}
 void Victor_SetFPS(i32 fps) { FPS = fps; frameDelay = 1000/FPS;}
 
 // Drawing stuff!
-
 void Victor_DrawRectangle(i32 x, i32 y, i32 width, i32 height, Color color) {
-    VictorRect r = newRect((Vec2){x,y}, width, height, color);
-    drawFillRect(renderer, r);
+    Victor_Rectangle r = newVictorRectangle((Vec2){x,y}, width, height, color);
+    drawFillVictorRectangle(renderer, r);
 }
