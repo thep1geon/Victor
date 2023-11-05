@@ -1,10 +1,12 @@
 #ifndef __COLOR_H
 #define __COLOR_H
 
-#include "types.h"
+#include "Victor_Types.h"
 typedef struct Color_t {
-    u16 r, g, b, a;
+    u8 r, g, b, a;
 } Color;
+
+#define COLOR(r, g, b, a) (Color){r, g, b, a}
 
 #define ALICEBLUE            (Color){240, 248, 255, 255}
 #define ANTIQUEWHITE         (Color){250, 235, 215, 255}

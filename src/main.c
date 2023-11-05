@@ -1,15 +1,24 @@
-#include "include/victor.h"
+#include "include/Victor.h"
+#include "include/Victor_Color.h"
+#include "include/Victor_Types.h"
 
-void display(void) {
-    Victor_Event e = Victor_GetEvent();
-    Victor_Rectangle r = newVictorRectangle(VEC2(0, 0), 90, 90, CYAN);
+#include <math.h>
+#include <stdio.h>
 
-    Victor_DrawRectangle(Rect_Param(r));
-    Victor_DrawRectangle(e.motion.x - 25, e.motion.y - 25, 50, 50, GHOSTWHITE);
+#define WINDOW_WIDTH  1000
+#define WINDOW_HEIGHT 500
+#define CENTRE        VECTOR2(WINDOW_WIDTH/2.0, WINDOW_HEIGHT/2.0)
+
+void gameLoop(void) {
+    Vector2 pos = Victor_GetMousePos();
+
+    Victor_DrawLineVec(CENTRE, pos, RED);
+    Victor_DrawLine(CENTRE.x, CENTRE.y, pos.x, CENTRE.y, GREEN);
+    Victor_DrawLine(pos.x, CENTRE.y, pos.x, pos.y, BLUE);
 }
 
 i32 main(void) {
-    Victor_Init(420, 420, "Game!");
+    Victor_Init(WINDOW_WIDTH, WINDOW_HEIGHT, "Game!");
 
-    Victor_GameLoop(display);
+    Victor_GameLoop(gameLoop);
 }

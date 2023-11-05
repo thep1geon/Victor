@@ -1,10 +1,9 @@
 #ifndef __VICTOR_H
 #define __VICTOR_H
 
-#include "types.h"
-#include "color.h"
-#include "vec.h"
-#include "victor_rect.h"
+#include "Victor_Types.h"
+#include "Victor_Color.h"
+#include "Victor_Shapes.h"
 #include <SDL2/SDL.h>
 
 typedef SDL_Event Victor_Event;
@@ -15,11 +14,10 @@ void Victor_GameLoop(void(*display)(void));
 
 // Getting and setting global variables
 Victor_Event Victor_GetEvent(void);
+Vector2 Victor_GetMousePos(void);
+Vector2 Victor_GetWindowDimensions(void);
 
 void Victor_SetFPS(i32 fps);
 void Victor_SetBackgroundColor(Color c);
-
-// Drawing Stuff!
-void Victor_DrawRectangle(i32 x, i32 y, i32 width, i32 height, Color color);
 
 #endif  //__VICTOR_H
