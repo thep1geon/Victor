@@ -1,9 +1,4 @@
 #include "include/Victor.h"
-#include "include/Victor_Color.h"
-#include "include/Victor_Types.h"
-
-#include <math.h>
-#include <stdio.h>
 
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 500

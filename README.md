@@ -6,23 +6,27 @@ C like the gigachad I am, this is my most ambitious project yet.
 The main inspritation for starting this project was my laziness and not wanting to rewrite all
 the SDL boilerplate code. 
 
-```C
-#include "include/victor.h"
+```c
+#include "include/Victor.h"
 
-void display(void) {
-    Victor_Event e = Victor_GetEvent();
-    Victor_Rectangle r = newVictorRectangle(VEC2(0, 0), 90, 90, CYAN);
+#define WINDOW_WIDTH  1000
+#define WINDOW_HEIGHT 500
+#define CENTRE        VECTOR2(WINDOW_WIDTH/2.0, WINDOW_HEIGHT/2.0)
 
-    Victor_DrawRectangle(Rect_Param(r));
-    Victor_DrawRectangle(e.motion.x - 25, e.motion.y - 25, 50, 50, GHOSTWHITE);
+void gameLoop(void) {
+    Vector2 pos = Victor_GetMousePos();
+
+    Victor_DrawLineVec(CENTRE, pos, RED);
+    Victor_DrawLine(CENTRE.x, CENTRE.y, pos.x, CENTRE.y, GREEN);
+    Victor_DrawLine(pos.x, CENTRE.y, pos.x, pos.y, BLUE);
 }
 
-int main(void) {
-    Victor_Init(420, 420, "Game!");
+i32 main(void) {
+    Victor_Init(WINDOW_WIDTH, WINDOW_HEIGHT, "Game!");
 
-    Victor_GameLoop(display);
+    Victor_GameLoop(gameLoop);
 }
 ```
 
-That is the code to create a square that follows your mouse position. Without using Victor, that
-would be around 50 lines of code
+That is the code to create a triangle stuck at the centre of the window
+where each side is a different color
