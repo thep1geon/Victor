@@ -110,6 +110,10 @@ void Victor_GameLoop(void(*display)(void)) {
 
 }
 
+bool Victor_IsPosInWindow(Vector2 pos) {
+    return (pos.x >= 0 && pos.x < windowWidth && pos.y >= 0 && pos.y < windowHeight);
+}
+
 // Getters and setters
 Victor_Event Victor_GetEvent(void) { return e;}
 Vector2 Victor_GetMousePos(void) { return VECTOR2(e.motion.x, e.motion.y);}
@@ -139,16 +143,16 @@ void Victor_PlacePixelVec(Vector2i pos, Color c) {
 }
 
 void Victor_DrawLine(i32 x1, i32 y1, i32 x2, i32 y2, Color c) {
-    if (x1 < 0 || x1 > windowWidth || y1 < 0 || y1 > windowHeight) {return;}
-    if (x2 < 0 || x2 > windowWidth || y2 < 0 || y2 > windowHeight) {return;}
+    if (!Victor_IsPosInWindow(VECTOR2(x1, y1))) {return;}
+    if (!Victor_IsPosInWindow(VECTOR2(x2, y2))) {return;}
 
     SDL_SetRenderDrawColor(renderer, ColorParam(c));
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 }
 
 void Victor_DrawLineVec(Vector2 pos1, Vector2 pos2, Color c) {
-    if (pos1.x < 0 || pos1.x > windowWidth || pos1.y < 0 || pos1.y > windowHeight) {return;}
-    if (pos2.x < 0 || pos2.x > windowWidth || pos2.y < 0 || pos2.y > windowHeight) {return;}
+    if (!Victor_IsPosInWindow(pos1)) {return;}
+    if (!Victor_IsPosInWindow(pos2)) {return;}
 
     SDL_SetRenderDrawColor(renderer, ColorParam(c));
     SDL_RenderDrawLine(renderer, pos1.x, pos1.y, pos2.x, pos2.y);
@@ -187,3 +191,43 @@ void Victor_DrawRectangleRec(Victor_Rectangle rec) {
 
 }
 
+// Yay! Circles
+void Victor_DrawCircle(i32 x, i32 y, f32 radius, Color c) {
+    if (radius / 2 > windowHeight || radius / 2 > windowWidth) {return;}
+    SDL_SetRenderDrawColor(renderer, ColorParam(c));
+
+    for (i32 y_ = -radius; y_ <= radius; ++y_) {
+        for (i32 x_ = -radius; x_ <= radius; ++x_) {
+            if (x_ * x_ + y_ * y_ <= radius * radius) {
+                SDL_RenderDrawPoint(renderer, x_ + x, y_ + y);
+            }
+        }
+    }
+}
+
+void Victor_DrawCircleVec(Vector2 pos, f32 radius, Color c) {
+    if (radius / 2 > windowHeight || radius / 2 > windowWidth) {return;}
+    SDL_SetRenderDrawColor(renderer, ColorParam(c));
+
+    for (i32 y_ = -radius; y_ <= radius; ++y_) {
+        for (i32 x_ = -radius; x_ <= radius; ++x_) {
+            if (x_ * x_ + y_ * y_ <= radius * radius) {
+                SDL_RenderDrawPoint(renderer, x_ + pos.x, y_ + pos.y);
+            }
+        }
+    }
+}
+
+void Victor_DrawCircleCircle(Victor_Circle c) {
+    if (c.radius / 2 > windowHeight || c.radius / 2 > windowWidth) {return;}
+    SDL_SetRenderDrawColor(renderer, ColorParam(c.color));
+
+    for (i32 y_ = -c.radius; y_ <= c.radius; ++y_) {
+        for (i32 x_ = -c.radius; x_ <= c.radius; ++x_) {
+            if (x_ * x_ + y_ * y_ <= c.radius * c.radius) {
+                SDL_RenderDrawPoint(renderer, x_ + c.centre.x, y_ + c.centre.y);
+            }
+        }
+    }
+
+}
