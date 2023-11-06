@@ -22,7 +22,6 @@ static u32 frameTime;
 static u32 frameDelay;
 
 // Colors and other misc stuff
-static Color currentColor;
 static Color backgroundColor;
 
 void Victor_Init(i32 windowWidth_, i32 windowHeight_, const char* windowTitle) {
@@ -42,6 +41,8 @@ void Victor_Init(i32 windowWidth_, i32 windowHeight_, const char* windowTitle) {
                               SDL_WINDOW_SHOWN);
     if (window == NULL) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
         exit(2);
     }
 
@@ -57,7 +58,6 @@ void Victor_Init(i32 windowWidth_, i32 windowHeight_, const char* windowTitle) {
 
     frameDelay = 1000/FPS;
 
-    currentColor = GHOSTWHITE;
     backgroundColor = BLACK;
 
     windowHeight = windowHeight_;
@@ -137,7 +137,7 @@ void Victor_PlacePixel(i32 x, i32 y, Color c) {
     SDL_RenderDrawPoint(renderer, x, y);
 }
 
-void Victor_PlacePixelVec(Vector2i pos, Color c) {
+void Victor_PlacePixelVec(Vector2 pos, Color c) {
     SDL_SetRenderDrawColor(renderer, ColorParam(c));
     SDL_RenderDrawPoint(renderer, pos.x, pos.y);
 }
@@ -189,6 +189,26 @@ void Victor_DrawRectangleRec(Victor_Rectangle rec) {
         }
     }
 
+}
+
+void Victor_DrawRectangleOutline(i32 x, i32 y, i32 width, i32 height, Color color) {
+    Victor_DrawLine(x, y, x+width, y, color);
+    Victor_DrawLine(x+width, y, x+width, y+height, color);
+    Victor_DrawLine(x+width, y+height, x, y+height, color);
+    Victor_DrawLine(x, y+height, x, y, color);
+}
+void Victor_DrawRectangleOutlineVec(Vector2 pos, Vector2 dim, Color color) {
+    Victor_DrawLine(pos.x, pos.y, pos.x+dim.x, pos.y, color);
+    Victor_DrawLine(pos.x+dim.x, pos.y, pos.x+dim.x, pos.y+dim.y, color);
+    Victor_DrawLine(pos.x+dim.x, pos.y+dim.y, pos.x, pos.y+dim.y, color);
+    Victor_DrawLine(pos.x, pos.y+dim.y, pos.x, pos.y, color);
+
+}
+void Victor_DrawRectangleOutlineRec(Victor_Rectangle rec) {
+    Victor_DrawLine(rec.pos.x, rec.pos.y, rec.pos.x+rec.width, rec.pos.y, rec.color);
+    Victor_DrawLine(rec.pos.x+rec.width, rec.pos.y, rec.pos.x+rec.width, rec.pos.y+rec.height, rec.color);
+    Victor_DrawLine(rec.pos.x+rec.width, rec.pos.y+rec.height, rec.pos.x, rec.pos.y+rec.height, rec.color);
+    Victor_DrawLine(rec.pos.x, rec.pos.y+rec.height, rec.pos.x, rec.pos.y, rec.color);
 }
 
 // Yay! Circles

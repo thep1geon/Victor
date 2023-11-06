@@ -1,7 +1,4 @@
 #include "include/Victor.h"
-#include "include/Victor_Color.h"
-#include "include/Victor_Shapes.h"
-#include "include/Victor_Types.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -22,6 +19,8 @@ void gameLoop(void) {
     Victor_DrawLineVec(CENTRE, pos, RED);
     Victor_DrawLine(CENTRE.x, CENTRE.y, pos.x, CENTRE.y, GREEN);
     Victor_DrawLine(pos.x, CENTRE.y, pos.x, pos.y, BLUE);
+
+
 }
 
 i32 main(void) {
