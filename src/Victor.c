@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
+#include <assert.h>
 #include <stdio.h>
 
 #include "include/Victor.h"
@@ -250,4 +251,100 @@ void Victor_DrawCircleCircle(Victor_Circle c) {
         }
     }
 
+}
+
+// Triangles, FINALLY!
+
+static void sort_points_by_y(i32* x1, i32* y1, i32* x2, i32* y2, i32* x3, i32* y3) {
+    if (*y1 > *y2) {
+        i32 t = *y1;
+        *y1 = *y2;
+        *y2 = t;
+        t = *x1;
+        *x1 = *x2;
+        *x2 = t;
+    } 
+    if (*y2 > *y3) {
+        i32 t = *y2;
+        *y2 = *y3;
+        *y3 = t;
+        t = *x2;
+        *x2 = *x3;
+        *x3 = t;
+    } 
+    if (*y1 > *y2) {
+        i32 t = *y1;
+        *y1 = *y2;
+        *y2 = t;
+        t = *x1;
+        *x1 = *x2;
+        *x2 = t;
+    } 
+}
+
+void Victor_DrawTriangle(i32 x1, i32 y1, i32 x2, i32 y2, i32 x3, i32 y3, Color c) {
+    sort_points_by_y(&x1, &y1, &x2, &y2, &x3, &y3);
+    if (!Victor_IsPosInWindow(VECTOR2(x1, y1))) {return;}
+    if (!Victor_IsPosInWindow(VECTOR2(x2, y2))) {return;}
+    if (!Victor_IsPosInWindow(VECTOR2(x3, y3))) {return;}
+
+    i32 dx12 = x2 - x1;
+    i32 dy12 = y2 - y1;
+    i32 dx13 = x3 - x1;
+    i32 dy13 = y3 - y1;
+
+    for (i32 y = y1; y <= y2; ++y) {
+        if (y < 0 || y >= windowHeight) continue;
+
+        i32 s1 = dy12 != 0 ? (y - y1) * dx12/dy12 + x1 : x1;
+        i32 s2 = dy13 != 0 ? (y - y1) * dx13/dy13 + x1: x1;
+        if (s1 > s2) { i32 t = s1; s1 = s2; s2 = t; }
+
+        for (i32 x = s1; x <= s2; ++x) {
+            if (x < 0 || x >= windowWidth) continue;
+            Victor_PlacePixel(x, y, c);
+        }
+    }
+
+    i32 dx32 = x2 - x3;
+    i32 dy32 = y2 - y3;
+    i32 dx31 = x1 - x3;
+    i32 dy31 = y1 - y3;
+
+    for (i32 y = y2; y <= y3; ++y) {
+        if (y < 0 || y >= windowHeight) continue;
+
+        i32 s1 = dy32 != 0 ? (y - y3) * dx32/dy32 + x3 : x3;
+        i32 s2 = dy31 != 0 ? (y - y3) * dx31/dy31 + x3: x3;
+        if (s1 > s2) { i32 t = s1; s1 = s2; s2 = t; }
+
+        for (i32 x = s1; x <= s2; ++x) {
+            if (x < 0 || x >= windowWidth) continue;
+            Victor_PlacePixel(x, y, c);
+        }
+    }
+}
+
+void Victor_DrawTriangleVec(Vector2 v1, Vector2 v2, Vector2 v3, Color c) {
+    Victor_DrawTriangle(v1.x, v1.y, v2.x, v2.y, v3.x, v3.y, c);
+}
+void Victor_DrawTriangleTri(Victor_Triangle tri) {
+    Victor_DrawTriangle(tri.v1.x, tri.v1.y, tri.v2.x, tri.v2.y, tri.v3.x, tri.v3.y, tri.c);
+}
+
+void Victor_DrawTriangleOutline(i32 x1, i32 y1, i32 x2, i32 y2, i32 x3, i32 y3, Color c) {
+    Victor_DrawLine(x1, y1, x2, y2, c);
+    Victor_DrawLine(x2, y2, x3, y3, c);
+    Victor_DrawLine(x3, y3, x1, y1, c);
+}
+
+void Victor_DrawTriangleOutlineVec(Vector2 v1, Vector2 v2, Vector2 v3, Color c) {
+    Victor_DrawLineVec(v1, v2, c);
+    Victor_DrawLineVec(v2, v3, c);
+    Victor_DrawLineVec(v3, v1, c);
+}
+void Victor_DrawTriangleOutlineTri(Victor_Triangle tri) {
+    Victor_DrawLineVec(tri.v1, tri.v2, tri.c);
+    Victor_DrawLineVec(tri.v2, tri.v3, tri.c);
+    Victor_DrawLineVec(tri.v3, tri.v1, tri.c);
 }
