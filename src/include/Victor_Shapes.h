@@ -26,6 +26,8 @@ typedef struct rect_t {
 #define RECTANGLE(x, y, w, h, c)    (Victor_Rectangle){VECTOR2((x), (y)), (w), (h), (c)};
 #define RECTANGLE_VEC(pos, w, h, c) (Victor_Rectangle){pos, (w), (h), (c)};
 
+Victor_Rectangle Victor_RectangleScale(Victor_Rectangle rec, f32 scale);
+
 void Victor_DrawRectangle(i32 x, i32 y, i32 width, i32 height, Color color);
 void Victor_DrawRectangleVec(Vector2 pos, Vector2 dim, Color color);
 void Victor_DrawRectangleRec(Victor_Rectangle rec);

@@ -161,6 +161,12 @@ void Victor_DrawLineVec(Vector2 pos1, Vector2 pos2, Color c) {
 
 // Reactangle related functions
 
+Victor_Rectangle Victor_RectangleScale(Victor_Rectangle rec, f32 scale) {
+    rec.height *= scale;
+    rec.width *= scale;
+    return rec;
+}
+
 void Victor_DrawRectangle(i32 x, i32 y, i32 width, i32 height, Color color) {
     SDL_SetRenderDrawColor(renderer, ColorParam(color));
 
@@ -294,14 +300,13 @@ void Victor_DrawTriangle(i32 x1, i32 y1, i32 x2, i32 y2, i32 x3, i32 y3, Color c
     i32 dy13 = y3 - y1;
 
     for (i32 y = y1; y <= y2; ++y) {
-        if (y < 0 || y >= windowHeight) continue;
 
         i32 s1 = dy12 != 0 ? (y - y1) * dx12/dy12 + x1 : x1;
         i32 s2 = dy13 != 0 ? (y - y1) * dx13/dy13 + x1: x1;
         if (s1 > s2) { i32 t = s1; s1 = s2; s2 = t; }
 
         for (i32 x = s1; x <= s2; ++x) {
-            if (x < 0 || x >= windowWidth) continue;
+            if (!Victor_IsPosInWindow(VECTOR2(x, y))) break;
             Victor_PlacePixel(x, y, c);
         }
     }
@@ -312,14 +317,12 @@ void Victor_DrawTriangle(i32 x1, i32 y1, i32 x2, i32 y2, i32 x3, i32 y3, Color c
     i32 dy31 = y1 - y3;
 
     for (i32 y = y2; y <= y3; ++y) {
-        if (y < 0 || y >= windowHeight) continue;
-
         i32 s1 = dy32 != 0 ? (y - y3) * dx32/dy32 + x3 : x3;
         i32 s2 = dy31 != 0 ? (y - y3) * dx31/dy31 + x3: x3;
         if (s1 > s2) { i32 t = s1; s1 = s2; s2 = t; }
 
         for (i32 x = s1; x <= s2; ++x) {
-            if (x < 0 || x >= windowWidth) continue;
+            if (!Victor_IsPosInWindow(VECTOR2(x, y))) break;
             Victor_PlacePixel(x, y, c);
         }
     }
