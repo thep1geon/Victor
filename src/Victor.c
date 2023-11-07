@@ -1,17 +1,18 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
-#include <assert.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "include/Victor.h"
 #include "include/Victor_Color.h"
+#include "include/Victor_Math.h"
 #include "include/Victor_Shapes.h"
 #include "include/Victor_Types.h"
 
 // Windowing stuff
 static SDL_Window*   window;
 static SDL_Renderer* renderer;
-static i32 windowWidth, windowHeight;
+static i32 WINDOW_WIDTH, WINDOW_HEIGHT;
 
 // Game loop stuff
 static bool quit;
@@ -47,7 +48,7 @@ void Victor_Init(i32 windowWidth_, i32 windowHeight_, const char* windowTitle) {
         exit(2);
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
         SDL_DestroyWindow(window);
@@ -61,8 +62,8 @@ void Victor_Init(i32 windowWidth_, i32 windowHeight_, const char* windowTitle) {
 
     backgroundColor = BLACK;
 
-    windowHeight = windowHeight_;
-    windowWidth = windowWidth_;
+    WINDOW_HEIGHT = windowHeight_;
+    WINDOW_WIDTH = windowWidth_;
 }
 
 void Victor_GameLoop(void(*display)(void)) {
@@ -112,13 +113,23 @@ void Victor_GameLoop(void(*display)(void)) {
 }
 
 bool Victor_IsPosInWindow(Vector2 pos) {
-    return (pos.x >= 0 && pos.x < windowWidth && pos.y >= 0 && pos.y < windowHeight);
+    return (pos.x >= 0 && pos.x < WINDOW_WIDTH && pos.y >= 0 && pos.y < WINDOW_HEIGHT);
+}
+
+void Victor_ClampPointToWindow(Vector2* v) {
+    Victor_Clampf(&v->x, 0, WINDOW_WIDTH);
+    Victor_Clampf(&v->y, 0, WINDOW_HEIGHT);
+}
+
+void Victor_ClampXYToWindow(i32* x, i32* y) {
+    Victor_Clamp(x, 0, WINDOW_WIDTH);
+    Victor_Clamp(y, 0, WINDOW_HEIGHT);
 }
 
 // Getters and setters
 Victor_Event Victor_GetEvent(void) { return e;}
 Vector2 Victor_GetMousePos(void) { return VECTOR2(e.motion.x, e.motion.y);}
-Vector2 Victor_GetWindowDimensions(void) { return VECTOR2(windowWidth, windowHeight);}
+Vector2 Victor_GetWindowDimensions(void) { return VECTOR2(WINDOW_WIDTH, WINDOW_HEIGHT);}
 
 void Victor_SetBackgroundColor(Color c) { backgroundColor = c;}
 void Victor_SetFPS(i32 fps) { if (fps > 0 ) { FPS = fps; } else {FPS = 1;} frameDelay = 1000/FPS; }
@@ -135,36 +146,31 @@ void Victor_SetFPS(i32 fps) { if (fps > 0 ) { FPS = fps; } else {FPS = 1;} frame
 
 void Victor_PlacePixel(i32 x, i32 y, Color c) {
     SDL_SetRenderDrawColor(renderer, ColorParam(c));
+    Victor_ClampXYToWindow(&x, &y);
     SDL_RenderDrawPoint(renderer, x, y);
 }
 
 void Victor_PlacePixelVec(Vector2 pos, Color c) {
-    SDL_SetRenderDrawColor(renderer, ColorParam(c));
-    SDL_RenderDrawPoint(renderer, pos.x, pos.y);
+    Victor_PlacePixel(pos.x, pos.y, c);
 }
 
 void Victor_DrawLine(i32 x1, i32 y1, i32 x2, i32 y2, Color c) {
-    if (!Victor_IsPosInWindow(VECTOR2(x1, y1))) {return;}
-    if (!Victor_IsPosInWindow(VECTOR2(x2, y2))) {return;}
+    Victor_ClampXYToWindow(&x1, &y1);
+    Victor_ClampXYToWindow(&x2, &y2);
 
     SDL_SetRenderDrawColor(renderer, ColorParam(c));
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 }
 
 void Victor_DrawLineVec(Vector2 pos1, Vector2 pos2, Color c) {
-    if (!Victor_IsPosInWindow(pos1)) {return;}
-    if (!Victor_IsPosInWindow(pos2)) {return;}
-
-    SDL_SetRenderDrawColor(renderer, ColorParam(c));
-    SDL_RenderDrawLine(renderer, pos1.x, pos1.y, pos2.x, pos2.y);
+    Victor_DrawLine(pos1.x, pos1.y, pos2.x, pos2.y, c);
 }
 
 // Reactangle related functions
 
-Victor_Rectangle Victor_RectangleScale(Victor_Rectangle rec, f32 scale) {
-    rec.height *= scale;
-    rec.width *= scale;
-    return rec;
+void Victor_RectangleScale(Victor_Rectangle* rec, f32 scale) {
+    rec->height *= scale;
+    rec->width *= scale;
 }
 
 void Victor_DrawRectangle(i32 x, i32 y, i32 width, i32 height, Color color) {
@@ -178,24 +184,11 @@ void Victor_DrawRectangle(i32 x, i32 y, i32 width, i32 height, Color color) {
 }
 
 void Victor_DrawRectangleVec(Vector2 pos, Vector2 dim, Color color) {
-    SDL_SetRenderDrawColor(renderer, ColorParam(color));
-
-    for (i32 _y = pos.y; _y < pos.y + dim.y; ++_y) {
-        for (i32 _x = pos.x; _x < pos.x + dim.x; ++_x) {
-            SDL_RenderDrawPoint(renderer, _x, _y);
-        }
-    }
+    Victor_DrawRectangle(pos.x, pos.y, dim.x, dim.y, color);
 }
 
 void Victor_DrawRectangleRec(Victor_Rectangle rec) {
-    SDL_SetRenderDrawColor(renderer, ColorParam(rec.color));
-
-    for (i32 y = rec.pos.y; y < rec.pos.y + rec.height; ++y) {
-        for (i32 x = rec.pos.x; x < rec.pos.x + rec.width; ++x) {
-            SDL_RenderDrawPoint(renderer, x, y);
-        }
-    }
-
+    Victor_DrawRectangle(rec.pos.x, rec.pos.y, rec.width, rec.height, rec.color);
 }
 
 void Victor_DrawRectangleOutline(i32 x, i32 y, i32 width, i32 height, Color color) {
@@ -205,58 +198,29 @@ void Victor_DrawRectangleOutline(i32 x, i32 y, i32 width, i32 height, Color colo
     Victor_DrawLine(x, y+height, x, y, color);
 }
 void Victor_DrawRectangleOutlineVec(Vector2 pos, Vector2 dim, Color color) {
-    Victor_DrawLine(pos.x, pos.y, pos.x+dim.x, pos.y, color);
-    Victor_DrawLine(pos.x+dim.x, pos.y, pos.x+dim.x, pos.y+dim.y, color);
-    Victor_DrawLine(pos.x+dim.x, pos.y+dim.y, pos.x, pos.y+dim.y, color);
-    Victor_DrawLine(pos.x, pos.y+dim.y, pos.x, pos.y, color);
-
+    Victor_DrawRectangleOutline(pos.x, pos.y, dim.x, dim.y, color);
 }
 void Victor_DrawRectangleOutlineRec(Victor_Rectangle rec) {
-    Victor_DrawLine(rec.pos.x, rec.pos.y, rec.pos.x+rec.width, rec.pos.y, rec.color);
-    Victor_DrawLine(rec.pos.x+rec.width, rec.pos.y, rec.pos.x+rec.width, rec.pos.y+rec.height, rec.color);
-    Victor_DrawLine(rec.pos.x+rec.width, rec.pos.y+rec.height, rec.pos.x, rec.pos.y+rec.height, rec.color);
-    Victor_DrawLine(rec.pos.x, rec.pos.y+rec.height, rec.pos.x, rec.pos.y, rec.color);
+    Victor_DrawRectangleOutline(rec.pos.x, rec.pos.y, rec.width, rec.height, rec.color);
 }
 
 // Yay! Circles
-void Victor_DrawCircle(i32 x, i32 y, f32 radius, Color c) {
-    if (radius / 2 > windowHeight || radius / 2 > windowWidth) {return;}
-    SDL_SetRenderDrawColor(renderer, ColorParam(c));
 
-    for (i32 y_ = -radius; y_ <= radius; ++y_) {
-        for (i32 x_ = -radius; x_ <= radius; ++x_) {
-            if (x_ * x_ + y_ * y_ <= radius * radius) {
-                SDL_RenderDrawPoint(renderer, x_ + x, y_ + y);
-            }
-        }
+void Victor_DrawCircle(i32 x, i32 y, f32 radius, Color c) {
+    Victor_Clampf(&radius, 0, sqrt((WINDOW_WIDTH/2.0)*(WINDOW_WIDTH/2.0) + (WINDOW_HEIGHT/2.0)*(WINDOW_HEIGHT/2.0)));
+
+    for (i32 dy =  -radius; dy <= radius; ++dy) {
+        i32 dx = sqrt((radius * radius) - (dy * dy));
+        Victor_DrawLine(x - dx, y + dy, x + dx, y + dy, c);
     }
 }
 
 void Victor_DrawCircleVec(Vector2 pos, f32 radius, Color c) {
-    if (radius / 2 > windowHeight || radius / 2 > windowWidth) {return;}
-    SDL_SetRenderDrawColor(renderer, ColorParam(c));
-
-    for (i32 y_ = -radius; y_ <= radius; ++y_) {
-        for (i32 x_ = -radius; x_ <= radius; ++x_) {
-            if (x_ * x_ + y_ * y_ <= radius * radius) {
-                SDL_RenderDrawPoint(renderer, x_ + pos.x, y_ + pos.y);
-            }
-        }
-    }
+    Victor_DrawCircle(pos.x, pos.y, radius, c);
 }
 
 void Victor_DrawCircleCircle(Victor_Circle c) {
-    if (c.radius / 2 > windowHeight || c.radius / 2 > windowWidth) {return;}
-    SDL_SetRenderDrawColor(renderer, ColorParam(c.color));
-
-    for (i32 y_ = -c.radius; y_ <= c.radius; ++y_) {
-        for (i32 x_ = -c.radius; x_ <= c.radius; ++x_) {
-            if (x_ * x_ + y_ * y_ <= c.radius * c.radius) {
-                SDL_RenderDrawPoint(renderer, x_ + c.centre.x, y_ + c.centre.y);
-            }
-        }
-    }
-
+    Victor_DrawCircle(c.centre.x, c.centre.y, c.radius, c.color);
 }
 
 // Triangles, FINALLY!
@@ -289,10 +253,11 @@ static void sort_points_by_y(i32* x1, i32* y1, i32* x2, i32* y2, i32* x3, i32* y
 }
 
 void Victor_DrawTriangle(i32 x1, i32 y1, i32 x2, i32 y2, i32 x3, i32 y3, Color c) {
+    // Definitely stole this algorithm from Tsoding :)
     sort_points_by_y(&x1, &y1, &x2, &y2, &x3, &y3);
-    if (!Victor_IsPosInWindow(VECTOR2(x1, y1))) {return;}
-    if (!Victor_IsPosInWindow(VECTOR2(x2, y2))) {return;}
-    if (!Victor_IsPosInWindow(VECTOR2(x3, y3))) {return;}
+    Victor_ClampXYToWindow(&x1, &y1);
+    Victor_ClampXYToWindow(&x2, &y2);
+    Victor_ClampXYToWindow(&x3, &y3);
 
     i32 dx12 = x2 - x1;
     i32 dy12 = y2 - y1;
@@ -306,7 +271,6 @@ void Victor_DrawTriangle(i32 x1, i32 y1, i32 x2, i32 y2, i32 x3, i32 y3, Color c
         if (s1 > s2) { i32 t = s1; s1 = s2; s2 = t; }
 
         for (i32 x = s1; x <= s2; ++x) {
-            if (!Victor_IsPosInWindow(VECTOR2(x, y))) break;
             Victor_PlacePixel(x, y, c);
         }
     }
@@ -322,7 +286,6 @@ void Victor_DrawTriangle(i32 x1, i32 y1, i32 x2, i32 y2, i32 x3, i32 y3, Color c
         if (s1 > s2) { i32 t = s1; s1 = s2; s2 = t; }
 
         for (i32 x = s1; x <= s2; ++x) {
-            if (!Victor_IsPosInWindow(VECTOR2(x, y))) break;
             Victor_PlacePixel(x, y, c);
         }
     }
@@ -350,4 +313,20 @@ void Victor_DrawTriangleOutlineTri(Victor_Triangle tri) {
     Victor_DrawLineVec(tri.v1, tri.v2, tri.c);
     Victor_DrawLineVec(tri.v2, tri.v3, tri.c);
     Victor_DrawLineVec(tri.v3, tri.v1, tri.c);
+}
+
+/* Math Module
+*  
+*  A handful of math related functions that could be used in conjunction
+*  with the rest of the library
+*/
+
+void Victor_Clamp(i32* num, i32 low, i32 high) {
+    if (*num < low) {*num = low;}
+    if (*num >= high) {*num = high;}
+}
+
+void Victor_Clampf(f32* num, f32 low, f32 high) {
+    if (*num < low) {*num = low;}
+    if (*num >= high) {*num = high;}
 }
