@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "include/Victor.h"
+#include "include/Victor.h" 
 #include "include/Victor_Color.h"
 #include "include/Victor_Math.h"
 #include "include/Victor_Shapes.h"
@@ -110,6 +110,12 @@ void Victor_GameLoop(void(*display)(void)) {
     SDL_DestroyWindow(window);
     SDL_Quit();
 
+}
+
+void Victor_Quit(void) {
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }
 
 bool Victor_IsPosInWindow(Vector2 pos) {
@@ -223,6 +229,29 @@ void Victor_DrawCircleCircle(Victor_Circle c) {
     Victor_DrawCircle(c.centre.x, c.centre.y, c.radius, c.color);
 }
 
+void Victor_DrawCircleOutline(i32 x, i32 y, f32 radius, Color c) {
+    Victor_Clampf(&radius, 0, sqrt((WINDOW_WIDTH/2.0)*(WINDOW_WIDTH/2.0) + (WINDOW_HEIGHT/2.0)*(WINDOW_HEIGHT/2.0)));
+
+    for (i32 dy =  -radius; dy <= radius; ++dy) {
+        i32 dx = sqrt((radius * radius) - (dy * dy));
+        Victor_PlacePixel(x - dx, y + dy, c);
+        Victor_PlacePixel(x + dx, y + dy, c);
+    }
+
+    for (i32 dx =  -radius; dx <= radius; ++dx) {
+        i32 dy = sqrt((radius * radius) - (dx * dx));
+        Victor_PlacePixel(x + dx, y - dy, c);
+        Victor_PlacePixel(x + dx, y + dy, c);
+    }
+}
+
+void Victor_DrawCircleOutlineVec(Vector2 pos, f32 radius, Color c) {
+    Victor_DrawCircleOutline(pos.x, pos.y, radius, c);
+}
+
+void Victor_DrawCircleOutlineCircle(Victor_Circle c) {
+    Victor_DrawCircleOutline(c.centre.x, c.centre.y, c.radius, c.color);
+}
 // Triangles, FINALLY!
 
 static void sort_points_by_y(i32* x1, i32* y1, i32* x2, i32* y2, i32* x3, i32* y3) {

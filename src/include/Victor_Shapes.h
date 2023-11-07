@@ -49,6 +49,9 @@ void Victor_DrawCircle(i32 x, i32 y, f32 radius, Color c);
 void Victor_DrawCircleVec(Vector2 pos, f32 radius, Color c);
 void Victor_DrawCircleCircle(Victor_Circle c);
 
+void Victor_DrawCircleOutline(i32 x, i32 y, f32 radius, Color c);
+void Victor_DrawCircleOutlineVec(Vector2 pos, f32 radius, Color c);
+void Victor_DrawCircleOutlineCircle(Victor_Circle c);
 // Triangles!!
 typedef struct triangle_t {
     Vector2 v1;
