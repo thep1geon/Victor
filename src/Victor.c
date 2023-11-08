@@ -59,7 +59,7 @@ void Victor_Init(i32 windowWidth_, i32 windowHeight_, const char* windowTitle) {
 
     FPS = 60;
 
-    frameDelay = 1000/FPS;
+    frameDelay = 1000 /FPS;
 
     backgroundColor = BLACK;
 
@@ -106,6 +106,7 @@ void Victor_GameLoop(void(*display)(void)) {
                     if (Victor_IsPosInWindow(newMousePos)) {
                         lastMousePosInWindow = newMousePos;
                     } 
+                    break;
                 }
             }
 
