@@ -148,13 +148,13 @@ bool Victor_IsPosInWindow(Vector2 pos) {
 }
 
 void Victor_ClampPointToWindow(Vector2* v) {
-    Victor_Clampf(&v->x, 0, WINDOW_WIDTH);
-    Victor_Clampf(&v->y, 0, WINDOW_HEIGHT);
+    Victor_Clampf(&v->x, -1, WINDOW_WIDTH + 1);
+    Victor_Clampf(&v->y, -1, WINDOW_HEIGHT + 1);
 }
 
 void Victor_ClampXYToWindow(i32* x, i32* y) {
-    Victor_Clamp(x, 0, WINDOW_WIDTH);
-    Victor_Clamp(y, 0, WINDOW_HEIGHT);
+    Victor_Clamp(x, -1, WINDOW_WIDTH + 1);
+    Victor_Clamp(y, -1, WINDOW_HEIGHT + 1);
 }
 
 // Getters and setters
@@ -259,7 +259,7 @@ void Victor_DrawRectangleOutlineRec(Victor_Rectangle rec) {
  */
 
 void Victor_DrawCircle(i32 x, i32 y, f32 radius, Color c) {
-    Victor_Clampf(&radius, 0, sqrt((WINDOW_WIDTH/2.0)*(WINDOW_WIDTH/2.0) + (WINDOW_HEIGHT/2.0)*(WINDOW_HEIGHT/2.0)));
+    Victor_Clampf(&radius, -1, sqrt((WINDOW_WIDTH/2.0)*(WINDOW_WIDTH/2.0) + (WINDOW_HEIGHT/2.0)*(WINDOW_HEIGHT/2.0)) + 1);
 
     for (i32 dy =  -radius; dy <= radius; ++dy) {
         i32 dx = sqrt((radius * radius) - (dy * dy));
@@ -276,7 +276,7 @@ void Victor_DrawCircleCircle(Victor_Circle c) {
 }
 
 void Victor_DrawCircleOutline(i32 x, i32 y, f32 radius, Color c) {
-    Victor_Clampf(&radius, 0, sqrt((WINDOW_WIDTH/2.0)*(WINDOW_WIDTH/2.0) + (WINDOW_HEIGHT/2.0)*(WINDOW_HEIGHT/2.0)));
+    Victor_Clampf(&radius, -1, sqrt((WINDOW_WIDTH/2.0)*(WINDOW_WIDTH/2.0) + (WINDOW_HEIGHT/2.0)*(WINDOW_HEIGHT/2.0)) + 1);
 
     for (i32 dy =  -radius; dy <= radius; ++dy) {
         i32 dx = sqrt((radius * radius) - (dy * dy));
