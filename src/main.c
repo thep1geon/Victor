@@ -1,5 +1,6 @@
 #include "include/Victor.h"
 #include <math.h>
+#include <stdio.h>
 
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
@@ -14,6 +15,8 @@ Color color_from_xy(f32 x, f32 y) {
 }
 
 void gameLoop(void) {
+    if (Victor_IsKeyPressed('q')) Victor_Quit();
+
     for (i32 y = 0; y < WINDOW_HEIGHT; ++y) {
         for (i32 x = 0; x < WINDOW_WIDTH; ++x) {
             Vector2 pos = VECTOR2(x,y);

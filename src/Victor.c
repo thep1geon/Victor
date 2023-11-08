@@ -1,12 +1,9 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_events.h>
 #include <stdio.h>
 #include <math.h>
 
 #include "include/Victor.h" 
-#include "include/Victor_Color.h"
-#include "include/Victor_Math.h"
-#include "include/Victor_Shapes.h"
 #include "include/Victor_Types.h"
 
 // Windowing stuff
@@ -22,6 +19,10 @@ static u32 FPS;
 static u32 frameStart;
 static u32 frameTime;
 static u32 frameDelay;
+
+static Vector2 lastMousePos = VECTOR2(0, 0);
+static Vector2 lastMousePosInWindow = VECTOR2(0, 0);
+static Victor_Key lastKey;
 
 // Colors and other misc stuff
 static Color backgroundColor;
@@ -64,6 +65,9 @@ void Victor_Init(i32 windowWidth_, i32 windowHeight_, const char* windowTitle) {
 
     WINDOW_HEIGHT = windowHeight_;
     WINDOW_WIDTH = windowWidth_;
+
+    e.motion.x = lastMousePos.x;
+    e.motion.y = lastMousePos.y;
 }
 
 void Victor_GameLoop(void(*display)(void)) {
@@ -77,11 +81,31 @@ void Victor_GameLoop(void(*display)(void)) {
     while (!quit) {
         frameStart = SDL_GetTicks();
 
+        lastMousePos.x = e.motion.x;
+        lastMousePos.y = e.motion.y;
+
         while (SDL_PollEvent(&e)) {
+            Vector2 newMousePos;
+            newMousePos.x = e.motion.x;
+            newMousePos.y = e.motion.y;
+
             switch (e.type) {
                 case SDL_QUIT: {
                     quit = true;
                     break;
+                }
+                case SDL_KEYDOWN: {
+                    lastKey.key = e.key.keysym.sym;
+                    break;
+                }
+                case SDL_KEYUP: {
+                    lastKey.key = 0;
+                    break;
+                }
+                case SDL_MOUSEMOTION: {
+                    if (Victor_IsPosInWindow(newMousePos)) {
+                        lastMousePosInWindow = newMousePos;
+                    } 
                 }
             }
 
@@ -116,6 +140,7 @@ void Victor_Quit(void) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    exit(0);
 }
 
 bool Victor_IsPosInWindow(Vector2 pos) {
@@ -134,7 +159,15 @@ void Victor_ClampXYToWindow(i32* x, i32* y) {
 
 // Getters and setters
 Victor_Event Victor_GetEvent(void) { return e;}
-Vector2 Victor_GetMousePos(void) { return VECTOR2(e.motion.x, e.motion.y);}
+
+Vector2 Victor_GetMousePos(void) { 
+    if (!Victor_IsPosInWindow(VECTOR2(e.motion.x, e.motion.y))) {
+        return lastMousePosInWindow;
+    }
+
+    return VECTOR2(e.motion.x, e.motion.y);
+}
+
 Vector2 Victor_GetWindowDimensions(void) { return VECTOR2(WINDOW_WIDTH, WINDOW_HEIGHT);}
 
 void Victor_SetBackgroundColor(Color c) { backgroundColor = c;}
@@ -148,7 +181,11 @@ void Victor_SetFPS(i32 fps) { if (fps > 0 ) { FPS = fps; } else {FPS = 1;} frame
     * are coming later, for now you can draw basics stuff
 */
 
-// Basic drawing functions
+/* Basic Drawing Functions
+ *
+ * - Placing individual pixels
+ * - Drawing Lines
+ */
 
 void Victor_PlacePixel(i32 x, i32 y, Color c) {
     SDL_SetRenderDrawColor(renderer, ColorParam(c));
@@ -172,7 +209,12 @@ void Victor_DrawLineVec(Vector2 pos1, Vector2 pos2, Color c) {
     Victor_DrawLine(pos1.x, pos1.y, pos2.x, pos2.y, c);
 }
 
-// Reactangle related functions
+/* Rectangles
+ *
+ * - Scaling Reactangles (I dont know)
+ * - Drawing filled Reactangles
+ * - Drawing the outline of the rectangle
+ */
 
 void Victor_RectangleScale(Victor_Rectangle* rec, f32 scale) {
     rec->height *= scale;
@@ -210,7 +252,11 @@ void Victor_DrawRectangleOutlineRec(Victor_Rectangle rec) {
     Victor_DrawRectangleOutline(rec.pos.x, rec.pos.y, rec.width, rec.height, rec.color);
 }
 
-// Yay! Circles
+/* Circles!
+ *
+ * - Drawing filled circles
+ * - Drawing circles
+ */
 
 void Victor_DrawCircle(i32 x, i32 y, f32 radius, Color c) {
     Victor_Clampf(&radius, 0, sqrt((WINDOW_WIDTH/2.0)*(WINDOW_WIDTH/2.0) + (WINDOW_HEIGHT/2.0)*(WINDOW_HEIGHT/2.0)));
@@ -252,7 +298,12 @@ void Victor_DrawCircleOutlineVec(Vector2 pos, f32 radius, Color c) {
 void Victor_DrawCircleOutlineCircle(Victor_Circle c) {
     Victor_DrawCircleOutline(c.centre.x, c.centre.y, c.radius, c.color);
 }
-// Triangles, FINALLY!
+/* Triangles
+ *
+ * sort_points_by_y() is only meant to be used by one function
+ * Drawing filled Triangles
+ * Drawing the outline of Triangles
+ */
 
 static void sort_points_by_y(i32* x1, i32* y1, i32* x2, i32* y2, i32* x3, i32* y3) {
     if (*y1 > *y2) {
@@ -350,12 +401,34 @@ void Victor_DrawTriangleOutlineTri(Victor_Triangle tri) {
 *  with the rest of the library
 */
 
+// Clamp an integer value between a high and a low
 void Victor_Clamp(i32* num, i32 low, i32 high) {
     if (*num < low) {*num = low;}
     if (*num >= high) {*num = high;}
 }
 
+// Clamp a floating-point number between a high and a low
 void Victor_Clampf(f32* num, f32 low, f32 high) {
     if (*num < low) {*num = low;}
     if (*num >= high) {*num = high;}
+}
+
+/* Keyboard Module
+*  
+*  Interacting with the keyboard during the game loop
+*
+*  Mostly just copying from SDL and renaming to fit my needs
+*
+*  Many features will be missing from SDL simply because I don't care enough
+*  to implement the printscreen key
+*/
+
+// Returns the last key pressed
+Victor_Key Victor_GetKey() {
+    return lastKey;
+}
+
+// Returns if the last key pressed is equal to the parameter
+bool Victor_IsKeyPressed(Key key) {
+    return lastKey.key == key;
 }

@@ -4,6 +4,8 @@
 #include "Victor_Types.h"
 #include "Victor_Color.h"
 #include "Victor_Shapes.h"
+#include "Victor_Keyboard.h"
+#include "Victor_Math.h"
 #include <SDL2/SDL.h>
 
 typedef SDL_Event Victor_Event;
