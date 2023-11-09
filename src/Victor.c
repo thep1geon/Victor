@@ -132,11 +132,6 @@ void Victor_GameLoop(void(*display)(void)) {
             SDL_Delay(frameDelay - frameTime);
         }
     }
-
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-
 }
 
 void Victor_Quit(i32 exitCode) {

@@ -1,4 +1,5 @@
 #include "include/Victor.h"
+#include "include/Victor_Image.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,4 +66,7 @@ i32 main(void) {
     Victor_Init(WINDOW_WIDTH, WINDOW_HEIGHT, "Grand Victor Example!");
 
     Victor_GameLoop(gameLoop);
+
+    Victor_DestroyImage(image);
+    Victor_Quit(0);
 }
