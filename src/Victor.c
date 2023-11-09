@@ -2,9 +2,11 @@
 #include <SDL2/SDL_events.h>
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "include/Victor.h" 
-#include "include/Victor_Types.h"
+#include "include/Victor.h"
+#include "include/Victor_Image.h"
 
 // Windowing stuff
 static SDL_Window*   window;
@@ -137,11 +139,11 @@ void Victor_GameLoop(void(*display)(void)) {
 
 }
 
-void Victor_Quit(void) {
+void Victor_Quit(i32 exitCode) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-    exit(0);
+    exit(exitCode);
 }
 
 bool Victor_IsPosInWindow(Vector2 pos) {
@@ -306,7 +308,7 @@ void Victor_DrawCircleOutlineCircle(Victor_Circle c) {
  * Drawing the outline of Triangles
  */
 
-static void sort_points_by_y(i32* x1, i32* y1, i32* x2, i32* y2, i32* x3, i32* y3) {
+void Victor_Shapes_SortPointsByY(i32* x1, i32* y1, i32* x2, i32* y2, i32* x3, i32* y3) {
     if (*y1 > *y2) {
         i32 t = *y1;
         *y1 = *y2;
@@ -335,7 +337,7 @@ static void sort_points_by_y(i32* x1, i32* y1, i32* x2, i32* y2, i32* x3, i32* y
 
 void Victor_DrawTriangle(i32 x1, i32 y1, i32 x2, i32 y2, i32 x3, i32 y3, Color c) {
     // Definitely stole this algorithm from Tsoding :)
-    sort_points_by_y(&x1, &y1, &x2, &y2, &x3, &y3);
+    Victor_Shapes_SortPointsByY(&x1, &y1, &x2, &y2, &x3, &y3);
     Victor_ClampXYToWindow(&x1, &y1);
     Victor_ClampXYToWindow(&x2, &y2);
     Victor_ClampXYToWindow(&x3, &y3);
@@ -432,4 +434,97 @@ Victor_Key Victor_GetKey() {
 // Returns if the last key pressed is equal to the parameter
 bool Victor_IsKeyPressed(Key key) {
     return lastKey.key == key;
+}
+
+/* Image Module
+*
+*  The backbone of everything else relating to images, this 
+*  includes sprites and textures
+*/
+
+void Victor_Image_ParseLine(char *line, i32 *row, i32 *col, Color *color) {
+    char* token = strtok(line, " ");
+    i32 i = 0;
+
+    while (i < 5 && token != NULL) {
+        switch (i) {
+            case 0:
+                *row = atoi(token);
+                break;
+            case 1:
+                *col = atoi(token);
+                break;
+            case 2:
+                color->r = atoi(token);
+                break;
+            case 3:
+                color->g = atoi(token);
+                break;
+            case 4:
+                token[strlen(token)-1] = 0; 
+                color->b = atoi(token);
+                break;
+        }
+
+        token = strtok(NULL, " ");
+        i++;
+    }
+
+}
+
+Victor_Image* Victor_LoadImage(const char* path) {
+    Victor_Image* image = (Victor_Image*)malloc(sizeof(Victor_Image));
+    if (!image) return NULL;
+
+    image->width = 64;
+    image->height = 64;
+
+    image->data = (Color*)malloc((image->width * image->height) * sizeof(Color));
+    if (!image->data) {
+        free(image);
+        fprintf(stderr, "LoadImage: Malloc fail\n");
+        return NULL;
+    }
+
+
+    FILE* f = fopen(path, "r");
+    if (!f) {
+        fprintf(stderr, "LoadImage: Failed to open file: %s\n", path);
+        free(image->data);
+        free(image);
+        return NULL;
+    }
+
+    char* line = NULL;
+    u64 len = 0;
+    i64 read;
+
+    i32 row = 0;
+    i32 col = 0;
+    Color color = COLOR(0,0,0,255);
+    while ((read = getline(&line, &len, f)) > 0) {
+        Victor_Image_ParseLine(line, &row, &col, &color);
+        image->data[row * image->width + col] = color;
+    }
+
+    fclose(f);
+
+    return image;
+}
+
+void Victor_DrawImage(Victor_Image* image, i32 x, i32 y) {
+    for (u32 y_ = 0; y_ < image->height; ++y_) {
+        for (u32 x_ = 0; x_ < image->width; ++x_) {
+            Color pixelColor = image->data[y_ * image->width + x_];
+            Victor_PlacePixel(x_ + x, y_ + y, pixelColor);
+        }
+    }
+}
+
+// Gotta free that memory bro
+void Victor_DestroyImage(Victor_Image* image) {
+    if (!image) return;
+
+    if (image->data) free(image->data);
+    if (image) free(image);
 }

@@ -2,11 +2,15 @@
 #define __COLOR_H
 
 #include "Victor_Types.h"
-typedef struct Color_t {
+typedef struct color_t {
     u8 r, g, b, a;
 } Color;
-
 #define COLOR(r, g, b, a) (Color){r, g, b, a}
+
+typedef struct color_rbg_t {
+    u8 r, g, b;
+} Color_RGB;
+#define COLOR_RGB(r, g, b) (Color_RGB){r, g, b}
 
 #define ALICEBLUE            (Color){240, 248, 255, 255}
 #define ANTIQUEWHITE         (Color){250, 235, 215, 255}

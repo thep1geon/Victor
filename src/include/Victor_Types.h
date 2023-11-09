@@ -31,7 +31,7 @@ typedef int       bool;
 typedef struct vec2_t {
     f32 x, y;
 } Vector2;
-#define VECTOR2(x, y) (Vector2){x, y}
+#define VECTOR2(x, y) (Vector2){(x), (y)}
 
 typedef struct vec2i_t {
     i32 x, y;

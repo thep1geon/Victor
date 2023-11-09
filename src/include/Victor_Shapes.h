@@ -62,6 +62,8 @@ typedef struct triangle_t {
 #define TRIANGLE(x1, y1, x2, y2, x3, y3, c) (Victor_Triangle){VECTOR2(x1,y1), VECTOR2(x2,y2), VECTOR2(x3,y3)}
 #define TRIANGLE_VEC(v1, v2, v3, c)         (Victor_Triangle){v1, v2, v3, c}
 
+void Victor_Shapes_SortPointsByY(i32* x1, i32* y1, i32* x2, i32* y2, i32* x3, i32* y3);
+
 void Victor_DrawTriangle(i32 x1, i32 y1, i32 x2, i32 y2, i32 x3, i32 y3, Color c);
 void Victor_DrawTriangleVec(Vector2 v1, Vector2 v2, Vector2 v3, Color c);
 void Victor_DrawTriangleTri(Victor_Triangle tri);

@@ -9,12 +9,15 @@ the SDL boilerplate code.
 ```c
 #include "include/Victor.h"
 #include <math.h>
-#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #define WINDOW_WIDTH  1000
 #define WINDOW_HEIGHT 700
 const Vector2 CENTRE = VECTOR2(WINDOW_WIDTH/2.0, WINDOW_HEIGHT/2.0);
 Victor_Circle c;
+
+Victor_Image* image;
 
 Color color_from_xy(f32 x, f32 y) {
     u16   r = (x / WINDOW_WIDTH)  * 255; 
@@ -24,7 +27,10 @@ Color color_from_xy(f32 x, f32 y) {
 }
 
 void gameLoop(void) {
-    if (Victor_IsKeyPressed('q')) Victor_Quit();
+    if (Victor_IsKeyPressed('q')) {
+        Victor_DestroyImage(image);
+        Victor_Quit(0);
+    }
 
     for (i32 y = 0; y < WINDOW_HEIGHT; ++y) {
         for (i32 x = 0; x < WINDOW_WIDTH; ++x) {
@@ -49,12 +55,22 @@ void gameLoop(void) {
     Victor_DrawLineVec(CENTRE, pos, RED);
     Victor_DrawLine(CENTRE.x, CENTRE.y, pos.x, CENTRE.y, GREEN);
     Victor_DrawLine(pos.x, CENTRE.y, pos.x, pos.y, BLUE);
+
+    Victor_DrawImage(image, CENTRE.x - image->width/2.0, CENTRE.y - image->height/2.0);
+
+    for (i32 i = 0; i < 50; ++i) {
+        Victor_DrawImage(image, rand()%WINDOW_WIDTH, rand()%WINDOW_HEIGHT);
+    }
 }
 
 i32 main(void) {
+    srand(time(NULL));
+    image = Victor_LoadImage("./fire.pic");
+    if (!image) Victor_Quit(-1);
+
     c = CIRCLE_VEC(CENTRE, 1, GHOSTWHITE);
 
-    Victor_Init(WINDOW_WIDTH, WINDOW_HEIGHT, "Circles and Triangles!");
+    Victor_Init(WINDOW_WIDTH, WINDOW_HEIGHT, "Grand Victor Example!");
 
     Victor_GameLoop(gameLoop);
 }
@@ -62,8 +78,9 @@ i32 main(void) {
 
 A great example of what you can do with the Victor library
 
-- Drawing Circles
-- Drawing Filled Triangles
-- Drawing Lines
 - Setting individual pixels
+- Drawing Circles
+- Drawing Lines
+- Drawing Filled Triangles
 - Interaction with the keyboard
+- Images!

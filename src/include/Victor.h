@@ -1,11 +1,7 @@
 #ifndef __VICTOR_H
 #define __VICTOR_H
 
-#include "Victor_Types.h"
-#include "Victor_Color.h"
-#include "Victor_Shapes.h"
-#include "Victor_Keyboard.h"
-#include "Victor_Math.h"
+#include "Victor_Include.h"
 #include <SDL2/SDL.h>
 
 typedef SDL_Event Victor_Event;
@@ -13,7 +9,7 @@ typedef SDL_Event Victor_Event;
 // Game stuff
 void Victor_Init(i32 windowWidth, i32 windowHeight, const char* windowTitle);
 void Victor_GameLoop(void(*display)(void));
-void Victor_Quit(void);
+void Victor_Quit(i32 exitCode);
 
 bool Victor_IsPosInWindow(Vector2 pos);
 
