@@ -18,6 +18,7 @@ void Victor_ClampPointToWindow(Vector2* v);
 
 // Getting and setting global variables
 Victor_Event Victor_GetEvent(void);
+f32 Victor_GetDeltaTime(void);
 Vector2 Victor_GetMousePos(void);
 Vector2 Victor_GetWindowDimensions(void);
 

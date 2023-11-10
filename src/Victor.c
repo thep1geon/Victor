@@ -17,9 +17,11 @@ static bool quit;
 static SDL_Event e;
 
 static u32 FPS;
-static u32 frameStart;
-static u32 frameTime;
-static u32 frameDelay;
+static f32 frameStart;
+static f32 prevFrameStart;
+static f32 frameTime;
+static f32 frameDelay;
+static f32 deltaTime;
 
 static Vector2 lastMousePos = VECTOR2(0, 0);
 static Vector2 lastMousePosInWindow = VECTOR2(0, 0);
@@ -60,7 +62,7 @@ void Victor_Init(i32 windowWidth_, i32 windowHeight_, const char* windowTitle) {
 
     FPS = 60;
 
-    frameDelay = 1000 /FPS;
+    frameDelay = 1000.0 /FPS;
 
     backgroundColor = BLACK;
 
@@ -81,6 +83,7 @@ void Victor_GameLoop(void(*display)(void)) {
 
     while (!quit) {
         frameStart = SDL_GetTicks();
+        deltaTime = (frameStart - prevFrameStart) / 1000.f;
 
         lastMousePos.x = e.motion.x;
         lastMousePos.y = e.motion.y;
@@ -126,6 +129,7 @@ void Victor_GameLoop(void(*display)(void)) {
 
         SDL_RenderPresent(renderer);
 
+        prevFrameStart = frameStart;
         frameTime = SDL_GetTicks() - frameStart;
         if (frameTime < frameDelay) {
             SDL_Delay(frameDelay - frameTime);
@@ -157,6 +161,8 @@ void Victor_ClampXYToWindow(i32* x, i32* y) {
 // Getters and setters
 Victor_Event Victor_GetEvent(void) { return e;}
 
+f32 Victor_GetDeltaTime(void) { return deltaTime;}
+
 Vector2 Victor_GetMousePos(void) { 
     if (!Victor_IsPosInWindow(VECTOR2(e.motion.x, e.motion.y))) {
         return lastMousePosInWindow;
@@ -168,7 +174,7 @@ Vector2 Victor_GetMousePos(void) {
 Vector2 Victor_GetWindowDimensions(void) { return VECTOR2(WINDOW_WIDTH, WINDOW_HEIGHT);}
 
 void Victor_SetBackgroundColor(Color c) { backgroundColor = c;}
-void Victor_SetFPS(i32 fps) { if (fps > 0 ) { FPS = fps; } else {FPS = 1;} frameDelay = 1000/FPS; }
+void Victor_SetFPS(i32 fps) { if (fps > 0 ) { FPS = fps; } else {FPS = 1;} frameDelay = 1000.0/FPS; }
 
 /*
     * The Shapes module, responsible for drawing primitive shapes
