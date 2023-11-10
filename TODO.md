@@ -1,8 +1,6 @@
 # Victor Todos
 
-- [ ] Sprites
-- [ ] Textures
-- [ ] Images
+- [X] Images
 - [ ] Sound?
-- [ ] Better Event System
-- [ ] Better Keyboard interaction
+- [X] Better Event System
+- [X] Better Keyboard interaction

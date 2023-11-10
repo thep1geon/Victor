@@ -501,8 +501,10 @@ Victor_Image* Victor_LoadImage(const char* path) {
     while ((read = getline(&line, &len, f)) > 0) {
         Victor_Image_ParseLine(line, &row, &col, &color);
         image->data[row * image->width + col] = color;
+
     }
 
+    free(line);
     fclose(f);
 
     return image;
@@ -536,9 +538,10 @@ void Victor_DrawImage(Victor_Image* image, i32 x, i32 y) {
 }
 
 // Gotta free that memory bro
-void Victor_DestroyImage(Victor_Image* image) {
-    if (!image) return;
+void Victor_DestroyImage(Victor_Image** image) {
+    if (!image || !(*image)) return;
 
-    if (image->data) free(image->data);
-    if (image) free(image);
+    if ((*image)->data) free((*image)->data);
+    free(*image);
+    *image = NULL;
 }

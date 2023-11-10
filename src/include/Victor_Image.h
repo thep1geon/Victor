@@ -30,6 +30,6 @@ Victor_Image* Victor_LoadImage(const char* path);
 void Victor_DrawImage(Victor_Image* image, i32 x, i32 y);
 void Victor_ScaleImage(Victor_Image* image, f32 sacle);
 
-void Victor_DestroyImage(Victor_Image* image);
+void Victor_DestroyImage(Victor_Image** image);
 
 #endif  //__VICTOR_IMAGE_H

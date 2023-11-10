@@ -11,6 +11,7 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
 HEADER_FILES := $(shell find $(SRC_DIR)/include -type f -name "*.h")
 
+CFLAGS := -Wall -Wextra -g -fsanitize=address
 CFLAGS := -Wall -Wextra -g
 LIBS := -lSDL2 -lm
 

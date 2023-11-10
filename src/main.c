@@ -22,7 +22,7 @@ Color color_from_xy(f32 x, f32 y) {
 
 void gameLoop(void) {
     if (Victor_IsKeyPressed('q')) {
-        Victor_DestroyImage(image);
+        Victor_DestroyImage(&image);
         Victor_Quit(0);
     }
 
@@ -71,6 +71,6 @@ i32 main(void) {
 
     Victor_GameLoop(gameLoop);
 
-    Victor_DestroyImage(image);
+    Victor_DestroyImage(&image);
     Victor_Quit(0);
 }
