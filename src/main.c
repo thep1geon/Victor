@@ -1,5 +1,6 @@
 #include "include/Victor.h"
 #include "include/Victor_Image.h"
+#include "include/Victor_Keyboard.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +36,8 @@ void gameLoop(void) {
 
     Vector2 pos = Victor_GetMousePos();
 
-    f32 dist = sqrtf((CENTRE.x - pos.x) * (CENTRE.x - pos.x) + (CENTRE.y - pos.y) * (CENTRE.y - pos.y));
+    f32 dist = sqrtf((CENTRE.x - pos.x) * (CENTRE.x - pos.x) + 
+                     (CENTRE.y - pos.y) * (CENTRE.y - pos.y));
 
     c.radius = dist;
     c.color = color_from_xy(pos.x, pos.y);
@@ -51,7 +53,8 @@ void gameLoop(void) {
 
     Victor_DrawImage(image, CENTRE.x - image->width/2.0, CENTRE.y - image->height/2.0);
 
-    for (i32 i = 0; i < 50; ++i) {
+    for (i32 i = 0; i < 5; ++i) {
+        Victor_ScaleImage(image, (i%4)+1);
         Victor_DrawImage(image, rand()%WINDOW_WIDTH, rand()%WINDOW_HEIGHT);
     }
 }
@@ -60,6 +63,7 @@ i32 main(void) {
     srand(time(NULL));
     image = Victor_LoadImage("./fire.pic");
     if (!image) Victor_Quit(-1);
+    Victor_ScaleImage(image, 3);
 
     c = CIRCLE_VEC(CENTRE, 1, GHOSTWHITE);
 

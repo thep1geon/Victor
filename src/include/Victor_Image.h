@@ -20,12 +20,16 @@ typedef struct image_t {
     Color* data; // Saves 1 byte of memory since we don't care about alpha
     u32 width;
     u32 height;
+
+    f32 scale;
 } Victor_Image;
 
 void Victor_Image_ParseLine(char* line, i32* row, i32* col, Color* color);
 
 Victor_Image* Victor_LoadImage(const char* path);
 void Victor_DrawImage(Victor_Image* image, i32 x, i32 y);
+void Victor_ScaleImage(Victor_Image* image, f32 sacle);
+
 void Victor_DestroyImage(Victor_Image* image);
 
 #endif  //__VICTOR_IMAGE_H

@@ -6,7 +6,6 @@
 #include <string.h>
 
 #include "include/Victor.h"
-#include "include/Victor_Image.h"
 
 // Windowing stuff
 static SDL_Window*   window;
@@ -437,7 +436,7 @@ bool Victor_IsKeyPressed(Key key) {
 *  includes sprites and textures
 */
 
-void Victor_Image_ParseLine(char *line, i32 *row, i32 *col, Color *color) {
+void Victor_Image_ParseLine(char* line, i32* row, i32* col, Color* color) {
     char* token = strtok(line, " ");
     i32 i = 0;
 
@@ -456,6 +455,7 @@ void Victor_Image_ParseLine(char *line, i32 *row, i32 *col, Color *color) {
                 color->g = atoi(token);
                 break;
             case 4:
+                // Remove the newline character
                 token[strlen(token)-1] = 0; 
                 color->b = atoi(token);
                 break;
@@ -473,18 +473,19 @@ Victor_Image* Victor_LoadImage(const char* path) {
 
     image->width = 64;
     image->height = 64;
+    image->scale = 1;
 
     image->data = (Color*)malloc((image->width * image->height) * sizeof(Color));
     if (!image->data) {
         free(image);
-        fprintf(stderr, "LoadImage: Malloc fail\n");
+        printf("LoadImage: Malloc fail\n");
         return NULL;
     }
 
 
     FILE* f = fopen(path, "r");
     if (!f) {
-        fprintf(stderr, "LoadImage: Failed to open file: %s\n", path);
+        printf("LoadImage: Failed to open file: %s\n", path);
         free(image->data);
         free(image);
         return NULL;
@@ -507,11 +508,29 @@ Victor_Image* Victor_LoadImage(const char* path) {
     return image;
 }
 
+void Victor_ScaleImage(Victor_Image* image, f32 scale) {
+    image->scale = scale;
+}
+
+// Now with image scaling
 void Victor_DrawImage(Victor_Image* image, i32 x, i32 y) {
-    for (u32 y_ = 0; y_ < image->height; ++y_) {
-        for (u32 x_ = 0; x_ < image->width; ++x_) {
-            Color pixelColor = image->data[y_ * image->width + x_];
-            Victor_PlacePixel(x_ + x, y_ + y, pixelColor);
+    i32 xOffset = (i32)((image->width * image->scale - image->width) / 2.0);
+    i32 yOffset = (i32)((image->height * image->scale - image->height) / 2.0);
+
+    for (u32 pixelY = 0; pixelY < image->height; ++pixelY) {
+        for (u32 pixelX = 0; pixelX < image->width; ++pixelX) {
+            Color pixelColor = image->data[pixelY * image->width + pixelX];
+            
+            i32 scaledX = (i32)(pixelX * image->scale) + x - xOffset;
+            i32 scaledY = (i32)(pixelY * image->scale) + y - yOffset;
+
+            Victor_PlacePixel(scaledX, scaledY, pixelColor);
+
+            for (i32 subPixelY = 0; subPixelY < image->scale; ++subPixelY) {
+                for (i32 subPixelX = 0; subPixelX < image->scale; ++subPixelX) {
+                    Victor_PlacePixel(scaledX + subPixelX, scaledY + subPixelY, pixelColor);
+                }
+            }
         }
     }
 }

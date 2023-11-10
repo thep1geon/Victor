@@ -141,6 +141,7 @@ typedef struct color_rbg_t {
 #define VIOLET               (Color){238, 130, 238, 255}
 #define WHEAT                (Color){245, 222, 179, 255}
 #define WHITESMOKE           (Color){245, 245, 245, 255}
+#define WHITE                (Color){255, 255, 255, 255}
 #define YELLOW               (Color){255, 255, 0,   255}
 #define YELLOWGREEN          (Color){154, 205, 50,  255}
 
