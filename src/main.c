@@ -1,6 +1,6 @@
 #include "include/Victor.h"
 #include "include/Victor_Image.h"
-#include "include/Victor_Keyboard.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,9 +20,12 @@ Color color_from_xy(f32 x, f32 y) {
     return COLOR(r,g,b, 255);
 }
 
+void clean(void) {
+    Victor_DestroyImage(&image);
+}
+
 void gameLoop(void) {
     if (Victor_IsKeyPressed('q')) {
-        Victor_DestroyImage(&image);
         Victor_Quit(0);
     }
 
@@ -51,26 +54,24 @@ void gameLoop(void) {
     Victor_DrawLine(CENTRE.x, CENTRE.y, pos.x, CENTRE.y, GREEN);
     Victor_DrawLine(pos.x, CENTRE.y, pos.x, pos.y, BLUE);
 
-    Victor_DrawImage(image, CENTRE.x - image->width/2.0, CENTRE.y - image->height/2.0);
+    Victor_DrawImage(image, CENTRE.x - image->width/2.0, CENTRE.y - image->height/2.0, 3);
 
     for (i32 i = 0; i < 5; ++i) {
-        Victor_ScaleImage(image, (i%4)+1);
-        Victor_DrawImage(image, rand()%WINDOW_WIDTH, rand()%WINDOW_HEIGHT);
+        Victor_DrawImage(image, rand()%WINDOW_WIDTH, rand()%WINDOW_HEIGHT, rand()%5);
     }
 }
 
 i32 main(void) {
     srand(time(NULL));
-    image = Victor_LoadImage("./fire.pic");
+    image = Victor_LoadImage("./fire.iif");
     if (!image) Victor_Quit(-1);
-    Victor_ScaleImage(image, 3);
 
     c = CIRCLE_VEC(CENTRE, 1, GHOSTWHITE);
 
     Victor_Init(WINDOW_WIDTH, WINDOW_HEIGHT, "Grand Victor Example!");
+    Victor_SetCleanFunc(clean);
 
     Victor_GameLoop(gameLoop);
 
-    Victor_DestroyImage(&image);
     Victor_Quit(0);
 }

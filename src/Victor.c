@@ -27,6 +27,10 @@ static Vector2 lastMousePos = VECTOR2(0, 0);
 static Vector2 lastMousePosInWindow = VECTOR2(0, 0);
 static Victor_Key lastKey;
 
+// The clean function to be called when we quit Victor
+// this helps with memory management
+static void (*cleanFunc)(void);
+
 // Colors and other misc stuff
 static Color backgroundColor;
 
@@ -137,11 +141,12 @@ void Victor_GameLoop(void(*display)(void)) {
     }
 }
 
-void Victor_Quit(i32 exitCode) {
+void Victor_Quit(i32 code) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-    exit(exitCode);
+    cleanFunc();
+    exit(code);
 }
 
 bool Victor_IsPosInWindow(Vector2 pos) {
@@ -175,6 +180,7 @@ Vector2 Victor_GetWindowDimensions(void) { return VECTOR2(WINDOW_WIDTH, WINDOW_H
 
 void Victor_SetBackgroundColor(Color c) { backgroundColor = c;}
 void Victor_SetFPS(i32 fps) { if (fps > 0 ) { FPS = fps; } else {FPS = 1;} frameDelay = 1000.0/FPS; }
+void Victor_SetCleanFunc(void(*clean)(void)) {cleanFunc = clean;};
 
 /*
     * The Shapes module, responsible for drawing primitive shapes
@@ -479,7 +485,6 @@ Victor_Image* Victor_LoadImage(const char* path) {
 
     image->width = 64;
     image->height = 64;
-    image->scale = 1;
 
     image->data = (Color*)malloc((image->width * image->height) * sizeof(Color));
     if (!image->data) {
@@ -516,26 +521,22 @@ Victor_Image* Victor_LoadImage(const char* path) {
     return image;
 }
 
-void Victor_ScaleImage(Victor_Image* image, f32 scale) {
-    image->scale = scale;
-}
-
 // Now with image scaling
-void Victor_DrawImage(Victor_Image* image, i32 x, i32 y) {
-    i32 xOffset = (i32)((image->width * image->scale - image->width) / 2.0);
-    i32 yOffset = (i32)((image->height * image->scale - image->height) / 2.0);
+void Victor_DrawImage(Victor_Image* image, i32 x, i32 y, f32 scale) {
+    i32 xOffset = (i32)((image->width * scale - image->width) / 2.0);
+    i32 yOffset = (i32)((image->height * scale - image->height) / 2.0);
 
     for (u32 pixelY = 0; pixelY < image->height; ++pixelY) {
         for (u32 pixelX = 0; pixelX < image->width; ++pixelX) {
             Color pixelColor = image->data[pixelY * image->width + pixelX];
             
-            i32 scaledX = (i32)(pixelX * image->scale) + x - xOffset;
-            i32 scaledY = (i32)(pixelY * image->scale) + y - yOffset;
+            i32 scaledX = (i32)(pixelX * scale) + x - xOffset;
+            i32 scaledY = (i32)(pixelY * scale) + y - yOffset;
 
             Victor_PlacePixel(scaledX, scaledY, pixelColor);
 
-            for (i32 subPixelY = 0; subPixelY < image->scale; ++subPixelY) {
-                for (i32 subPixelX = 0; subPixelX < image->scale; ++subPixelX) {
+            for (i32 subPixelY = 0; subPixelY < scale; ++subPixelY) {
+                for (i32 subPixelX = 0; subPixelX < scale; ++subPixelX) {
                     Victor_PlacePixel(scaledX + subPixelX, scaledY + subPixelY, pixelColor);
                 }
             }

@@ -65,7 +65,7 @@ void gameLoop(void) {
 
 i32 main(void) {
     srand(time(NULL));
-    image = Victor_LoadImage("./fire.pic");
+    image = Victor_LoadImage("./fire.iif");
     if (!image) Victor_Quit(-1);
 
     c = CIRCLE_VEC(CENTRE, 1, GHOSTWHITE);

@@ -6,8 +6,8 @@
 *  The backbone of everything else relating to images, this 
 *  includes sprites and textures
 *
-*  The funny part is, for now, the Victor_Image module only supports the .pic
-*  format. The .pic format is a custom format used by my Python-Paint project for
+*  The funny part is, for now, the Victor_Image module only supports the .iif
+*  format. The .iif format is a custom format used by my Python-Paint project for
 *  easily storing your drawings. I really don't want to have to parse complex image
 *  formats, at least right now, so if you want to use the Victor_Image module, you're
 *  gonna have to download Python-Paint to make the images
@@ -20,15 +20,12 @@ typedef struct image_t {
     Color* data; // Saves 1 byte of memory since we don't care about alpha
     u32 width;
     u32 height;
-
-    f32 scale;
 } Victor_Image;
 
 void Victor_Image_ParseLine(char* line, i32* row, i32* col, Color* color);
 
 Victor_Image* Victor_LoadImage(const char* path);
-void Victor_DrawImage(Victor_Image* image, i32 x, i32 y);
-void Victor_ScaleImage(Victor_Image* image, f32 sacle);
+void Victor_DrawImage(Victor_Image* image, i32 x, i32 y, f32 scale);
 
 void Victor_DestroyImage(Victor_Image** image);
 
