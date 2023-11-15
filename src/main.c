@@ -39,6 +39,12 @@ void gameLoop(void) {
 
     Vector2 pos = Victor_GetMousePos();
 
+    Victor_DrawImage(image, CENTRE.x - image->width/2.0, CENTRE.y - image->height/2.0, 3);
+
+    for (i32 i = 0; i < 5; ++i) {
+        Victor_DrawImage(image, rand()%WINDOW_WIDTH, rand()%WINDOW_HEIGHT, rand()%5);
+    }
+
     f32 dist = sqrtf((CENTRE.x - pos.x) * (CENTRE.x - pos.x) + 
                      (CENTRE.y - pos.y) * (CENTRE.y - pos.y));
 
@@ -54,11 +60,6 @@ void gameLoop(void) {
     Victor_DrawLine(CENTRE.x, CENTRE.y, pos.x, CENTRE.y, GREEN);
     Victor_DrawLine(pos.x, CENTRE.y, pos.x, pos.y, BLUE);
 
-    Victor_DrawImage(image, CENTRE.x - image->width/2.0, CENTRE.y - image->height/2.0, 3);
-
-    for (i32 i = 0; i < 5; ++i) {
-        Victor_DrawImage(image, rand()%WINDOW_WIDTH, rand()%WINDOW_HEIGHT, rand()%5);
-    }
 }
 
 i32 main(void) {
@@ -69,7 +70,7 @@ i32 main(void) {
     c = CIRCLE_VEC(CENTRE, 1, GHOSTWHITE);
 
     Victor_Init(WINDOW_WIDTH, WINDOW_HEIGHT, "Grand Victor Example!");
-    Victor_SetCleanFunc(clean);
+    // Victor_SetCleanFunc(clean);
 
     Victor_GameLoop(gameLoop);
 

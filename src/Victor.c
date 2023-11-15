@@ -145,7 +145,10 @@ void Victor_Quit(i32 code) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-    cleanFunc();
+
+    if (cleanFunc) {
+        cleanFunc();
+    }
     exit(code);
 }
 
