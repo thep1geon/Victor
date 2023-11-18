@@ -1,13 +1,12 @@
 #include "include/Victor.h"
-#include "include/Victor_Image.h"
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#define WINDOW_WIDTH  1000
-#define WINDOW_HEIGHT 700
+#define WINDOW_WIDTH  1000 
+#define WINDOW_HEIGHT 700 
 const Vector2 CENTRE = VECTOR2(WINDOW_WIDTH/2.0, WINDOW_HEIGHT/2.0);
 Victor_Circle c;
 
@@ -39,12 +38,6 @@ void gameLoop(void) {
 
     Vector2 pos = Victor_GetMousePos();
 
-    Victor_DrawImage(image, CENTRE.x - image->width/2.0, CENTRE.y - image->height/2.0, 3);
-
-    for (i32 i = 0; i < 5; ++i) {
-        Victor_DrawImage(image, rand()%WINDOW_WIDTH, rand()%WINDOW_HEIGHT, rand()%5);
-    }
-
     f32 dist = sqrtf((CENTRE.x - pos.x) * (CENTRE.x - pos.x) + 
                      (CENTRE.y - pos.y) * (CENTRE.y - pos.y));
 
@@ -60,6 +53,11 @@ void gameLoop(void) {
     Victor_DrawLine(CENTRE.x, CENTRE.y, pos.x, CENTRE.y, GREEN);
     Victor_DrawLine(pos.x, CENTRE.y, pos.x, pos.y, BLUE);
 
+    Victor_DrawImage(image, CENTRE.x - image->width/2.0, CENTRE.y - image->height/2.0, 3);
+
+    for (i32 i = 0; i < 5; ++i) {
+        Victor_DrawImage(image, rand()%WINDOW_WIDTH, rand()%WINDOW_HEIGHT, rand()%5);
+    }
 }
 
 i32 main(void) {

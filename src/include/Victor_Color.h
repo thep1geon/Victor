@@ -7,11 +7,6 @@ typedef struct color_t {
 } Color;
 #define COLOR(r, g, b, a) (Color){r, g, b, a}
 
-typedef struct color_rbg_t {
-    u8 r, g, b;
-} Color_RGB;
-#define COLOR_RGB(r, g, b) (Color_RGB){r, g, b}
-
 #define ALICEBLUE            (Color){240, 248, 255, 255}
 #define ANTIQUEWHITE         (Color){250, 235, 215, 255}
 #define AQUA                 (Color){0,   255, 255, 255}

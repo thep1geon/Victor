@@ -10,7 +10,8 @@
 // Windowing stuff
 static SDL_Window*   window;
 static SDL_Renderer* renderer;
-static i32 WINDOW_WIDTH, WINDOW_HEIGHT;
+static i32 WINDOW_WIDTH;
+static i32 WINDOW_HEIGHT;
 
 // Game loop stuff
 static bool quit;
@@ -65,8 +66,7 @@ void Victor_Init(i32 windowWidth_, i32 windowHeight_, const char* windowTitle) {
     }
 
     FPS = 60;
-
-    frameDelay = 1000.0 /FPS;
+    frameDelay = 1000.0 / FPS;
 
     backgroundColor = BLACK;
 
@@ -149,6 +149,7 @@ void Victor_Quit(i32 code) {
     if (cleanFunc) {
         cleanFunc();
     }
+
     exit(code);
 }
 
@@ -157,13 +158,15 @@ bool Victor_IsPosInWindow(Vector2 pos) {
 }
 
 void Victor_ClampPointToWindow(Vector2* v) {
+    if (!v) return;
+
     Victor_Clampf(&v->x, -1, WINDOW_WIDTH + 1);
     Victor_Clampf(&v->y, -1, WINDOW_HEIGHT + 1);
 }
 
 void Victor_ClampXYToWindow(i32* x, i32* y) {
-    Victor_Clamp(x, -1, WINDOW_WIDTH + 1);
-    Victor_Clamp(y, -1, WINDOW_HEIGHT + 1);
+    if (x) Victor_Clamp(x, -1, WINDOW_WIDTH + 1);
+    if (y) Victor_Clamp(y, -1, WINDOW_HEIGHT + 1);
 }
 
 // Getters and setters
@@ -497,7 +500,7 @@ Victor_Image* Victor_LoadImage(const char* path) {
     }
 
 
-    FILE* f = fopen(path, "r");
+    FILE* f = fopen(path, "rb");
     if (!f) {
         printf("LoadImage: Failed to open file: %s\n", path);
         free(image->data);
@@ -526,6 +529,8 @@ Victor_Image* Victor_LoadImage(const char* path) {
 
 // Now with image scaling
 void Victor_DrawImage(Victor_Image* image, i32 x, i32 y, f32 scale) {
+    Victor_ClampXYToWindow(&x, &y);
+
     i32 xOffset = (i32)((image->width * scale - image->width) / 2.0);
     i32 yOffset = (i32)((image->height * scale - image->height) / 2.0);
 
@@ -536,7 +541,7 @@ void Victor_DrawImage(Victor_Image* image, i32 x, i32 y, f32 scale) {
             i32 scaledX = (i32)(pixelX * scale) + x - xOffset;
             i32 scaledY = (i32)(pixelY * scale) + y - yOffset;
 
-            Victor_PlacePixel(scaledX, scaledY, pixelColor);
+            Victor_ClampXYToWindow(&scaledX, &scaledY);
 
             for (i32 subPixelY = 0; subPixelY < scale; ++subPixelY) {
                 for (i32 subPixelX = 0; subPixelX < scale; ++subPixelX) {
