@@ -21,6 +21,7 @@ Color color_from_xy(f32 x, f32 y) {
 
 void clean(void) {
     Victor_DestroyImage(&image);
+    Victor_DestroyImage(&image);
 }
 
 void gameLoop(void) {
