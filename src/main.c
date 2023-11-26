@@ -56,7 +56,7 @@ void gameLoop(void) {
 
     Victor_DrawImage(image, CENTRE.x - image->width/2.0, CENTRE.y - image->height/2.0, 3);
 
-    for (i32 i = 0; i < 5; ++i) {
+    for (i32 i = 0; i < 6; ++i) {
         Victor_DrawImage(image, rand()%WINDOW_WIDTH, rand()%WINDOW_HEIGHT, rand()%5);
     }
 }
