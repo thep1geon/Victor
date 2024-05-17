@@ -68,7 +68,7 @@ i32 main(void) {
 
     c = CIRCLE_VEC(CENTRE, 1, GHOSTWHITE);
 
-    Victor_Init(WINDOW_WIDTH, WINDOW_HEIGHT, "Grand Victor Example!");
+    Victor_Init(WINDOW_WIDTH, WINDOW_HEIGHT, "The Grand Victor Example!");
     Victor_SetCleanFunc(clean);
 
     Victor_GameLoop(gameLoop);
